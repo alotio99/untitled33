@@ -6,7 +6,6 @@
 #include <cctype>
 
 
-
 class PasswordError : public std::exception {
 public:
     const char* what() const noexcept override {
