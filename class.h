@@ -45,7 +45,19 @@ public:
     Weapon() : name(""), damage(0), range(0.0) {}
     Weapon(const std::string& n, int d, double r) : name(n), damage(d), range(r) {}
 
-    void hit(BaseCharacter& actor, BaseCharacter& target);
+    void hit(BaseCharacter& actor, BaseCharacter& target){
+        if (!target.is_alive()) {
+            std::cout << "Враг уже повержен" << std::endl;
+            return;
+        }
+        double dist = actor.distance_to(target);
+        if (dist > range) {
+            std::cout << "Враг слишком далеко для оружия " << name << std::endl;
+            return;
+        }
+        std::cout << "Врагу нанесен урон оружием " << name << " в размере " << damage << std::endl;
+        target.get_damage(damage);
+    }
 
     friend std::ostream& operator<<(std::ostream& os, const Weapon& w) {
         os << w.name;
@@ -53,11 +65,11 @@ public:
     }
 
     friend std::istream& operator>>(std::istream& is, Weapon& w) {
-        std::cout << "Enter weapon name: ";
+        std::cout << "Введите название оружия: ";
         is >> w.name;
-        std::cout << "Enter damage: ";
+        std::cout << "Введите урон: ";
         is >> w.damage;
-        std::cout << "Enter range: ";
+        std::cout << "Введите радиус: ";
         is >> w.range;
         return is;
     }
@@ -93,22 +105,7 @@ public:
     }
 };
 
-// Реализация Weapon::hit после определения BaseEnemy и BaseCharacter
-void Weapon::hit(BaseCharacter& actor, BaseCharacter& target) {
-    if (!target.is_alive()) {
-        std::cout << "Враг уже повержен" << std::endl;
-        return;
-    }
-    double dist = actor.distance_to(target);
-    if (dist > range) {
-        std::cout << "Враг слишком далеко для оружия " << name << std::endl;
-        return;
-    }
-    std::cout << "Врагу нанесен урон оружием " << name << " в размере " << damage << std::endl;
-    target.get_damage(damage);
-}
 
-// Класс MainHero
 class MainHero : public BaseCharacter {
     std::string name;
     std::vector<Weapon> inventory;
@@ -144,7 +141,7 @@ public:
             std::cout << "У меня только одно оружие" << std::endl;
             return;
         }
-        current_weapon_index = (current_weapon_index + 1) % inventory.size();
+        current_weapon_index = (current_weapon_index + 1) % inventory.size(); // получение остатка от деления обеспечивает круговой перебор оружия
         std::cout << "Сменил оружие на " << inventory[current_weapon_index] << std::endl;
     }
 
