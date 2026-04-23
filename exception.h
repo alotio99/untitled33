@@ -7,7 +7,6 @@
 
 // ========================= ЗАДАНИЕ 1 =========================
 
-
 class PasswordError : public std::exception {
 public:
     const char* what() const noexcept override {
