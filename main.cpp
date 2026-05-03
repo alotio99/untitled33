@@ -42,4 +42,4 @@ int main() {
     zad8();
 
     return 0;
-} //
+}
