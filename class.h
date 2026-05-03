@@ -1,158 +1,200 @@
-#ifndef UNTITLED3_CLASS_H
-#define UNTITLED3_CLASS_H
-
+#include <iostream>
 #include <vector>
-#include <cmath>
+#include <string>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <iterator>
+#include <fstream>
+#include <numeric>
 
 
-class BaseCharacter {
-protected:
-    double pos_x, pos_y;
-    int hp;
-public:
-    BaseCharacter(double x, double y, int h) : pos_x(x), pos_y(y), hp(h) {}
-
-    void move(double delta_x, double delta_y) {
-        pos_x += delta_x;
-        pos_y += delta_y;
+template <typename Container>
+void Print(const Container& container, const std::string& razdel = " ") {
+    bool first = true;
+    for (const auto& elem : container) {
+        if (!first)
+            std::cout << razdel;
+        std::cout << elem;
+        first = false;
     }
-
-    bool is_alive() const {
-        return hp > 0;
-    }
-
-    void get_damage(int amount) {
-        hp -= amount;
-        if (hp < 0) hp = 0;
-    }
-
-    double get_x() const { return pos_x; }
-    double get_y() const { return pos_y; }
-
-    double distance_to(const BaseCharacter& other) const {
-        double dx = pos_x - other.pos_x;
-        double dy = pos_y - other.pos_y;
-        return std::sqrt(dx*dx + dy*dy);
-    }
-};
+    std::cout << std::endl;
+}
 
 
-class Weapon {
-    std::string name;
-    int damage;
-    double range;
-public:
-    Weapon() : name(""), damage(0), range(0.0) {}
-    Weapon(const std::string& n, int d, double r) : name(n), damage(d), range(r) {}
 
-    void hit(BaseCharacter& actor, BaseCharacter& target){
-        if (!target.is_alive()) {
-            std::cout << "Враг уже повержен" << std::endl;
-            return;
+
+void zad2(const std::vector<int>& numbers) {
+    std::set<int> settt;
+    for (int x : numbers) {
+        if (settt.find(x) != settt.end()) //если найденный итератор не равен итератору конца, то есть элемент найден
+            std::cout << "YES" << std::endl;
+        else {
+            std::cout << "NO" << std::endl;
+            settt.insert(x); //добавляет x
         }
-        double dist = actor.distance_to(target);
-        if (dist > range) {
-            std::cout << "Враг слишком далеко для оружия " << name << std::endl;
-            return;
+    }
+}
+
+
+
+
+void zad3(const std::vector<std::string>& words) {
+    if (words.empty())
+        return;
+    std::set<char> unikal(words[0].begin(), words[0].end());
+    for (size_t i = 1; i < words.size(); ++i) {
+        std::set<char> unikal_two(words[i].begin(), words[i].end());
+        std::set<char> intersection;
+        std::set_intersection(unikal.begin(), unikal.end(),
+                              unikal_two.begin(), unikal_two.end(),
+                              std::inserter(intersection, intersection.begin())); //оператор вставки в intersection
+        unikal = std::move(intersection); //перемещаем пересечение в unikal
+        if (unikal.empty())
+            break; //если unikal стало пустым, то искать больше нечего
+    }
+    for (char c : unikal)
+        std::cout << c;
+    std::cout << std::endl;
+}
+
+
+
+
+void zad4(const std::vector<std::string>& words) {
+    std::map<std::string, int> counts;
+    for (const std::string& w : words) {
+        int& cnt = counts[w]; //если w нет в map, создаётся пара {w, 0} и возвращается ссылка на 0
+        ++cnt;
+        std::cout << cnt << std::endl;
+    }
+}
+
+
+//что было у Васи не так
+//push_back может вызвать перераспределение памяти вектора, после чего
+//итератор it становится недействительным
+//бесконечный цикл, v.end() всё время сдвигается при добавлении новых
+//элементов, поэтому цикл никогда не закончится
+
+template <typename T>
+void Duplicate(std::vector<T>& v) {
+    std::size_t orig_size = v.size();
+    for (std::size_t i = 0; i < orig_size; ++i) {
+        v.push_back(v[i]);
+    }
+}
+
+
+
+
+template <typename Iter>
+void PrintResults(Iter first, Iter last) {
+    for (Iter it = first; it != last; ++it)
+        std::cout << *it << std::endl;
+}
+
+template <typename T>
+void Process(const std::vector<T>& data) {
+    std::vector<T> filtered;
+    std::copy_if(data.begin(), data.end(), //алгоритм, который копирует элементы из исходного диапазона в
+                 std::back_inserter(filtered), //выходной диапазон, но только если они удовлетворяют условию
+                 [](const T& x) { return x > 0; }); //const T& x параметр, который принимает каждый элемент вектора
+    PrintResults(filtered.begin(), filtered.end());
+}
+
+
+
+
+template <typename Iter>
+Iter Unique(Iter first, Iter last) {
+    if (first == last)
+        return last;
+    Iter unik = first;
+    while (++first != last) {
+        if (!(*unik == *first)) {
+            ++unik;
+            *unik = std::move(*first); //перемещаем элемент на новую позицию
         }
-        std::cout << "Врагу нанесен урон оружием " << name << " в размере " << damage << std::endl;
-        target.get_damage(damage);
+    }
+    return ++unik;
+}
+
+
+
+
+void zad8() {
+    std::ofstream fail("tekst.txt");
+    if (fail) {
+        fail << "1 2 3 4 5 6 7 8 9 10" << std::endl; // пример данных
+        fail.close();
+    } else {
+        std::cout << "Не удалось создать tekst.txt" << std::endl;
+        return;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Weapon& w) {
-        os << w.name;
-        return os;
+    std::ifstream fil("tekst.txt");
+    if (!fil) {
+        std::cout << "Не удалось открыть tekst.txt" << std::endl;
+        return;
+    }
+    std::vector<int> data;
+    int x;
+    while (fil >> x)
+        data.push_back(x);
+    fil.close();
+
+    if (data.empty()) {
+        std::cout << "Файл пуст" << std::endl;
+        return;
     }
 
-    friend std::istream& operator>>(std::istream& is, Weapon& w) {
-        std::cout << "Введите название оружия: ";
-        is >> w.name;
-        std::cout << "Введите урон: ";
-        is >> w.damage;
-        std::cout << "Введите радиус: ";
-        is >> w.range;
-        return is;
+    // a) количество встреч числа n и позиции
+    int n;
+    std::cout << "Введите число n для поиска: ";
+    std::cin >> n;
+    int cnt = std::count(data.begin(), data.end(), n); //count сразу считает сколько n в диапазоне
+    std::cout << "Число " << n << " встречается " << cnt << " раз(а)" << std::endl << "Позиции: ";
+    std::vector<int>::iterator it = data.begin();
+    while ((it = std::find(it, data.end(), n)) != data.end()) { //ищет n и если находит передвигает итератор
+        std::cout << std::distance(data.begin(), it) << " "; //а дальше находится след позиция
+        ++it; //distance ищет расстояние от начала до итератора, то есть позицию
+    }
+    std::cout << std::endl;
+
+    // b) четные элементы и их номера, сумма
+    std::vector<size_t> chet_pozicii; //size_t отлично подходит для размеров и индексов, т.к. беззнаковый
+    for (size_t i = 0; i < data.size(); ++i)
+        if (data[i] % 2 == 0) chet_pozicii.push_back(i);
+    std::cout << "Количество чётных элементов: " << chet_pozicii.size() << std::endl;
+    std::cout << "Номера чётных элементов: ";
+    for (size_t poz : chet_pozicii) std::cout << poz << " ";
+    std::cout << std::endl;
+
+    if (chet_pozicii.size() > data.size() - chet_pozicii.size()) {
+        int sum_chet = std::accumulate(data.begin(), data.end(), 0, //accumulate накапливает значения
+        [](int acc, int val) { return acc + (val % 2 == 0 ? val : 0); }); //acc – текущая накопленная сумма, val – текущий элемент вектора
+        std::cout << "Сумма чётных элементов: " << sum_chet << std::endl;
+    } else {
+        int sum_all = std::accumulate(data.begin(), data.end(), 0);
+        std::cout << "Сумма всех элементов: " << sum_all << std::endl;
     }
 
-    std::string getName() const { return name; }
-    int getDamage() const { return damage; }
-    double getRange() const { return range; }
-};
+    // c) исходный и отсортированный наборы
+    data.push_back(3);
+    data.push_back(-2);
+    data.push_back(7);
+    std::cout << "Исходный вектор: ";
+    Print(data, " ");
+    std::vector<int> sorted = data;
+    std::sort(sorted.begin(), sorted.end());
+    std::cout << "Отсортированный вектор: ";
+    Print(sorted, " ");
 
-
-class BaseEnemy : public BaseCharacter {
-    Weapon weapon;
-public:
-    BaseEnemy(double x, double y, const Weapon& w, int h) : BaseCharacter(x, y, h), weapon(w) {}
-
-    void hit(BaseCharacter& target) {
-        if (!target.is_alive()) {
-            std::cout << "Враг уже повержен" << std::endl;
-            return;
-        }
-        double dist = distance_to(target);
-        if (dist > weapon.getRange()) {
-            std::cout << "Враг слишком далеко для оружия " << weapon << std::endl;
-            return;
-        }
-        std::cout << "Врагу нанесен урон оружием " << weapon << " в размере " << weapon.getDamage() << std::endl;
-        target.get_damage(weapon.getDamage());
+    // d) перестановка первого и последнего элемента
+    if (!data.empty()) {
+        std::swap(data.front(), data.back());
+        std::cout << "После обмена первого и последнего: ";
+        Print(data, " ");
     }
-
-    friend std::ostream& operator<<(std::ostream& os, const BaseEnemy& e) {
-        os << "Враг на позиции (" << e.pos_x << ", " << e.pos_y << ") с оружием " << e.weapon;
-        return os;
-    }
-};
-
-
-class MainHero : public BaseCharacter {
-    std::string name;
-    std::vector<Weapon> inventory;
-    size_t current_weapon_index;
-    static const int MAX_HP = 200;
-
-public:
-    MainHero(double x, double y, const std::string& n, int h) : BaseCharacter(x, y, h), name(n), current_weapon_index(0) {}
-
-    void hit(BaseEnemy& target) {
-        if (inventory.empty()) {
-            std::cout << "Я безоружен" << std::endl;
-            return;
-        }
-        Weapon& w = inventory[current_weapon_index];
-        w.hit(*this, target);
-    }
-
-    void add_weapon(const Weapon& w) {
-        inventory.push_back(w);
-        if (inventory.size() == 1) {
-            current_weapon_index = 0;
-        }
-        std::cout << "Подобрал " << w << std::endl;
-    }
-
-    void next_weapon() {
-        if (inventory.empty()) {
-            std::cout << "Я безоружен" << std::endl;
-            return;
-        }
-        if (inventory.size() == 1) {
-            std::cout << "У меня только одно оружие" << std::endl;
-            return;
-        }
-        current_weapon_index = (current_weapon_index + 1) % inventory.size(); // получение остатка от деления обеспечивает круговой перебор оружия
-        std::cout << "Сменил оружие на " << inventory[current_weapon_index] << std::endl;
-    }
-
-    void heal(int amount) {
-        hp += amount;
-        if (hp > MAX_HP) hp = MAX_HP;
-        std::cout << "Полечился, теперь здоровья " << hp << std::endl;
-    }
-
-    int get_hp() const { return hp; }
-    std::string get_name() const { return name; }
-};
-
-#endif
+}

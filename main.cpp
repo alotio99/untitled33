@@ -1,99 +1,45 @@
-#include <exception>
-#include <iostream>
-#include <ostream>
-#include <string>
-
 #include "class.h"
-#include "exception.h"
-
 
 int main() {
+    std::cout << "-------- Задание 1 --------" << std::endl;
+    std::vector<int> v1 = {1, 2, 3};
+    Print(v1, ", ");
+    std::cout << std::endl;
 
-    std::cout << "---------------- Задание 1 ----------------" << std::endl;
-    try {
-        std::string pwd = get_password();
-        std::cout << "Пароль принят: " << pwd << std::endl;
-    } catch (const PasswordError& e) {
-        std::cout << "Исключение: " << e.what() << std::endl;
-    } catch (const std::exception& e) {
-        std::cout << "Неизвестное исключение: " << e.what() << std::endl;
-    }
+    std::cout << "-------- Задание 2 --------" << std::endl;
+    std::vector<int> nums2 = {1, 2, 1, 2, 2, 1, 6};
+    zad2(nums2);
+    std::cout << std::endl;
 
-    std::cout << std::endl << "---------------- Задание 2 ----------------" << std::endl;
+    std::cout << "-------- Задание 3 --------" << std::endl;
+    zad3({"apple", "peach"});
+    zad3({"alpha", "beta", "gamma"});
+    std::cout << std::endl;
 
-    Weapon sword("Меч", 30, 2.0);
-    Weapon bow("Лук", 20, 8.0);
-    Weapon axe("Топор", 40, 1.5);
-    Weapon dagger("Кинжал", 15, 1.0);
+    std::cout << "-------- Задание 4 --------" << std::endl;
+    zad4({"copy", "delta", "copy", "copy", "delta", "paste", "paste", "beta", "paste"});
+    std::cout << std::endl;
 
-    MainHero hero(0.0, 0.0, "Воронов", 100);
-    std::cout << "Герой " << hero.get_name() << " появился в точке (0,0) со здоровьем " << hero.get_hp() << std::endl;
+    std::cout << "-------- Задание 5 --------" << std::endl;
+    std::vector<int> v5 = {1, 2, 3};
+    Duplicate(v5);
+    Print(v5, " ");
+    std::cout << std::endl;
 
-    hero.add_weapon(sword);
-    hero.add_weapon(bow);
-    hero.next_weapon();
-    hero.next_weapon();
+    std::cout << "-------- Задание 6 --------" << std::endl;
+    std::vector<int> v6 = { -1, 2, -3, 4, 5, 0, -7 };
+    Process(v6);
+    std::cout << std::endl;
 
-    BaseEnemy goblin(3.0, 0.0, dagger, 40);
-    BaseEnemy orc(7.0, 1.0, axe, 80);
-    BaseEnemy archer(2.0, 5.0, bow, 50);
+    std::cout << "-------- Задание 7 --------" << std::endl;
+    std::vector<int> v7 = {1, 1, 2, 2, 2, 3, 4, 4, 5};
+    auto new_end = Unique(v7.begin(), v7.end());
+    v7.erase(new_end, v7.end());
+    Print(v7, " ");
+    std::cout << std::endl;
 
-    std::cout << std::endl <<  "----- Начало битвы -----" << std::endl;
-
-    std::cout << std::endl << "Бой с гоблином:" << std::endl;
-    hero.hit(goblin);
-    hero.next_weapon();
-    hero.hit(goblin);
-    hero.hit(goblin);
-    hero.hit(goblin);
-
-    Weapon spear("Копьё", 25, 4.0);
-    hero.add_weapon(spear);
-
-    std::cout << std::endl << "Бой с орком:" << std::endl;
-    hero.next_weapon();
-    hero.hit(orc);
-    hero.next_weapon();
-    hero.hit(orc);
-    hero.hit(orc);
-
-    std::cout << std::endl << "Лечение:" << std::endl;
-    hero.heal(30);
-
-    std::cout << std::endl << "Бой с лучником:" << std::endl;
-    hero.next_weapon();
-    hero.hit(archer);
-    hero.next_weapon();
-    hero.hit(archer);
-    hero.next_weapon();
-    hero.hit(archer);
-    hero.next_weapon();
-    hero.hit(archer);
-    hero.hit(archer);
-    hero.hit(archer);
-
-
-    std::cout << std::endl << "Битва окончена. Герой жив? " << (hero.is_alive() ? "Да" : "Нет") << std::endl;
-
-    std::cout << std::endl << "----- Проверка исключений -----" << std::endl;
-    MainHero naked_hero(0, 0, "Безоружный", 100);
-    try {
-        if (naked_hero.get_hp() > 0) {
-            throw NoWeaponException();
-        }
-    } catch (const NoWeaponException& e) {
-        std::cout << "Поймано исключение: " << e.what() << std::endl;
-    }
-
-    try {
-        Weapon short_sword("Короткий меч", 10, 0.5);
-        MainHero dummy(0, 0, "Тест", 100);
-        dummy.add_weapon(short_sword);
-        BaseEnemy distant_enemy(10, 0, dagger, 50);
-        throw OutOfRangeException(short_sword.getName());
-    } catch (const OutOfRangeException& e) {
-        std::cout << "Поймано исключение: " << e.what() << std::endl;
-    }
+    std::cout << "-------- Задание 8 --------" << std::endl;
+    zad8();
 
     return 0;
 }
